@@ -77,55 +77,50 @@ Once the application is started, you can access the API at [http://localhost:808
 
 Below is a list of basic endpoints provided by the API:
 
-| Endpoint                                   | HTTP Method | Description                                                            |
-|--------------------------------------------|:------------|------------------------------------------------------------------------|
-| **vaccines**                               |             |                                                                        |
-| `/api/v1/vaccines/{id}`                    | GET         | Get the vaccine with the specified ID                                   |
-| `/api/v1/vaccines/{id}`                    | PUT         | Update the vaccine with the specified ID                                |
-| `/api/v1/vaccines/{id}`                    | DELETE      | Delete the vaccine with the specified ID                                |
-| `/api/v1/vaccines`                         | GET         | Get all vaccines                                                       |
-| `/api/v1/vaccines`                         | POST        | Add a new vaccine                                                      |
-| `/api/v1/vaccines/fnshDate`                | GET         | Get vaccine records for the given date range                           |
-| `/api/v1/vaccines/findByAnimalId/{animalId}` | GET         | Get all vaccine records for a specific animal                          |
-|                                            |             |                                                                        |
-| **doctors**                                |             |                                                                        |
-| `/api/v1/doctors/{id}`                     | GET         | Get the doctor with the specified ID                                    |
-| `/api/v1/doctors/{id}`                     | PUT         | Update the doctor with the specified ID                                |
-| `/api/v1/doctors/{id}`                     | DELETE      | Delete the doctor with the specified ID                                |
-| `/api/v1/doctors`                          | GET         | Get all doctors                                                        |
-| `/api/v1/doctors`                          | POST        | Add a new doctor                                                       |
-|                                            |             |                                                                        |
-| **customers**                              |             |                                                                        |
-| `/api/v1/customers/{id}`                   | GET         | Get the pet owner with the specified ID                                 |
-| `/api/v1/customers/{id}`                   | PUT         | Update the pet owner with the specified ID                             |
-| `/api/v1/customers/{id}`                   | DELETE      | Delete the pet owner with the specified ID                             |
-| `/api/v1/customers`                        | GET         | Get all pet owners                                                     |
-| `/api/v1/customers`                        | POST        | Add a new pet owner                                                    |
-| `/api/v1/customers/byName`                 | GET         | Get pet owners by name                                                 |
-|                                            |             |                                                                        |
-| **available_dates**                        |             |                                                                        |
-| `/api/v1/available_dates/{id}`             | GET         | Get the available date with the specified ID                           |
-| `/api/v1/available_dates/{id}`             | PUT         | Update the available date with the specified ID                       |
-| `/api/v1/available_dates/{id}`             | DELETE      | Delete the available date with the specified ID                       |
-| `/api/v1/available_dates`                  | GET         | Get all available dates                                                |
-| `/api/v1/available_dates`                  | POST        | Add a new available date                                               |
-|                                            |             |                                                                        |
-| **appointments**                           |             |                                                                        |
-| `/api/v1/appointments/{id}`                | GET         | Get the appointment with the specified ID                              |
-| `/api/v1/appointments/{id}`                | PUT         | Update the appointment with the specified ID                          |
-| `/api/v1/appointments/{id}`                | DELETE      | Delete the appointment with the specified ID                          |
-| `/api/v1/appointments`                     | GET         | Get all appointments                                                   |
-| `/api/v1/appointments`                     | POST        | Add a new appointment                                                  |
-| `/api/v1/appointments/doctorId`            | GET         | Get appointments based on the user-entered date range and doctor       |
-| `/api/v1/appointments/animalId`            | GET         | Get appointments based on the user-entered date range and animal       |
-|                                            |             |                                                                        |
-| **animals**                                |             |                                                                        |
-| `/api/v1/animals/{id}`                     | GET         | Get the animal with the specified ID                                    |
-| `/api/v1/animals/{id}`                     | PUT         | Update the animal with the specified ID                                |
-| `/api/v1/animals/{id}`                     | DELETE      | Delete the animal with the specified ID                                |
-| `/api/v1/animals`                          | GET         | Get all animals                                                        |
-| `/api/v1/animals`                          | POST        | Add a new animal                                                       |
-| `/api/v1/animals/byName`                   | GET         | Get animals by name                                                    |
-| `/api/v1/animals/byCustomerName`           | GET         | Get animals by pet owners                                              |
-|                                            |             |                                                                        |
+| Endpoint                        | HTTP Method | Description                                                      |
+|---------------------------------|:------------|------------------------------------------------------------------|
+| **vaccines**                    |             |                                                                  |
+| `/api/v1/vaccines`              | GET         | Get the vaccine                                                  |
+| `/api/v1/vaccines`              | PUT         | Update the vaccine                                               |
+| `/api/v1/vaccines/{id}`         | DELETE      | Delete the vaccine with the specified ID                         |
+| `/api/v1/vaccines`              | GET         | Get all vaccines                                                 |
+| `/api/v1/vaccines`              | POST        | Add a new vaccine                                                |
+| `/api/v1/vaccines/findByDate`   | GET         | Get vaccine records for the given date range                     |
+| `/api/v1/vaccines/animal/{id}`  | GET         | Get all vaccine records for a specific animal                    |
+|                                 |             |                                                                  |
+| **doctors**                     |             |                                                                  |
+| `/api/v1/doctors`               | GET         | Get the doctor                                                   |
+| `/api/v1/doctors`               | PUT         | Update the doctor                                                |
+| `/api/v1/doctors/{id}`          | DELETE      | Delete the doctor with the specified ID                          |
+| `/api/v1/doctors`               | POST        | Add a new doctor                                                 |
+|                                 |             |                                                                  |
+| **customers**                   |             |                                                                  |
+| `/api/v1/customers`             | GET         | Get the pet owner with the specified ID                          |
+| `/api/v1/customers`             | PUT         | Update the pet owner with the specified ID                       |
+| `/api/v1/customers/{id}`        | DELETE      | Delete the pet owner with the specified ID                       |
+| `/api/v1/customers`             | POST        | Add a new pet owner                                              |
+| `/api/v1/customers/byName`      | GET         | Get pet owners by name                                           |
+|                                 |             |                                                                  |
+| **available_dates**             |             |                                                                  |
+| `/api/v1/available_dates`       | GET         | Get all available dates                                          |
+| `/api/v1/available_dates/{id}`  | PUT         | Update the available date with the specified ID                  |
+| `/api/v1/available_dates/{id}`  | DELETE      | Delete the available date with the specified ID                  |
+| `/api/v1/available_dates`       | POST        | Add a new available date                                         |
+|                                 |             |                                                                  |
+| **appointments**                |             |                                                                  |
+| `/api/v1/appointments`          | GET         | Get all appointments                                             |
+| `/api/v1/appointments/{id}`     | PUT         | Update the appointment with the specified ID                     |
+| `/api/v1/appointments/{id}`     | DELETE      | Delete the appointment with the specified ID                     |
+| `/api/v1/appointments`          | POST        | Add a new appointment                                            |
+| `/api/v1/appointments/doctorId` | GET         | Get appointments based on the user-entered date range and doctor |
+| `/api/v1/appointments/animalId` | GET         | Get appointments based on the user-entered date range and animal |
+|                                 |             |                                                                  |
+| **animals**                     |             |                                                                  |
+| `/api/v1/animals`               | GET         | Get all animals                                                  |
+| `/api/v1/animals`               | PUT         | Update the animal with the specified ID                          |
+| `/api/v1/animals/{id}`          | DELETE      | Delete the animal with the specified ID                          |
+| `/api/v1/animals`               | POST        | Add a new animal                                                 |
+| `/api/v1/animals/customer/{id}` | GET         | Get animals by pet owners id                                     |
+| `/api/v1/animals/{name}`        | GET         | Get animals by pet owners name                                   |
+|                                 |             |                                                                  |
 
