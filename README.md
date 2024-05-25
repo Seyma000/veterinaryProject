@@ -2,6 +2,8 @@
 
 
 ## PROJECT SUMMARY WITH A YOUTUBE VIDEO
+Veterinary Management System is designed using N-layer architecture to streamline the daily operations of a veterinary clinic. It offers comprehensive functionalities to manage animals, appointments, doctors, customers, vaccine and available date.
+
 
 ### Click Below and Watch 
            
@@ -12,7 +14,36 @@
 
 ![UML](src/images/UML.png)
 
-### Entity EndPoints
+### PostgreSQL Database Images
+
+- **Vaccine Table**
+
+![vaccinedb.png](src/images/vaccinedb.png)
+
+- **Doctor Table**
+
+![doctordb.png](src/images/doctordb.png)
+
+- **Customer Table**
+
+![customerdb.png](src/images/customerdb.png)
+
+- **Available Date Table**
+
+![availabledatedb.png](src/images/availabledatedb.png)
+
+- **Appointment Table**
+
+![appointmentdb.png](src/images/appointmentdb.png)
+
+- **Animal Database**
+
+![animaldb.png](src/images/animaldb.png)
+
+
+
+
+### Swagger Entity EndPoints
 
 - **Vaccine Controller**
 
