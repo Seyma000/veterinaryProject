@@ -31,31 +31,24 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AppointmentManager implements IAppointmentService {
+public class AppointmentService implements IAppointmentService {
     // Injected dependencies
     private final AppointmentRepo appointmentRepo;
     private final IAnimalService animalService;
     private final IDoctorService doctorService;
     private final IModelMapperService modelMapperService;
     private final ConvertEntityToResponse<Appointment, AppointmentResponse> convert;
-//    @Override
-//    public ResultData<AppointmentResponse> save(AppointmentSaveRequest appointmentSaveRequest) {
-//        this.animalManager.get(appointmentSaveRequest.getAnimalId());
-//        Appointment appointment= this.modelMapperService.forRequest().map(appointmentSaveRequest, Appointment.class);
-//
-//
-//        return ResultHelper.created(this.modelMapperService.forResponse().map(this.appointmentRepo.save(appointment), AppointmentResponse.class));
-//
-//    }
 
-        @Override
+    @Override
     public ResultData<AppointmentResponse> save(AppointmentSaveRequest appointmentSaveRequest) {
-//        LocalDateTime dakikalar 00 değilse hata mesajı veriyor.
+        // Check if minutes are 00
         LocalDateTime dateTime = appointmentSaveRequest.getDateTime();
         System.out.println(dateTime.getMinute());
         if (dateTime.getMinute() != 0){
             return ResultHelper.error("Lütfen dakika bilgisini '00' giriniz.");
         }
+
+        // Check for existing appointment with the same date, doctor, and animal
         Optional<Appointment> appointmentOptional = this.findByValueForValid(
                 appointmentSaveRequest.getDateTime(),
                 appointmentSaveRequest.getDoctorId(),
@@ -65,28 +58,28 @@ public class AppointmentManager implements IAppointmentService {
             throw new DataAlreadyExistException(Msg.getEntityForMsg(Appointment.class));
         }
 
-        //AnimalId ve DoctorId ye göre nesneler üretiliyor
+        // Get animal and doctor by their IDs
         Animal animal = this.animalService.get(appointmentSaveRequest.getAnimalId());
         Doctor doctor = this.doctorService.get(appointmentSaveRequest.getDoctorId());
 
-        //Doktorun müsait günlerini liste içerisine atıyor
+        // Check doctor's available dates
         List<Doctor> doctorList =  this.doctorService.findByIdAndAvailableDateDate(appointmentSaveRequest.getDoctorId(), LocalDate.from(dateTime));
 
-        //Oluşturulan randevular içerisinde çakışan randevuları liste içerisine atıyor.
+        // Check for conflicting appointments
         List<Appointment> appointmentByDate = this.findByDateTime(dateTime);
 
-        //DoctorId ve AnimalId ler aynı olduğu için update işlemi yapmasın diye null değeri verilir.
+        // Set IDs to null to avoid update
         appointmentSaveRequest.setAnimalId(null);
         appointmentSaveRequest.setDateTime(null);
         appointmentSaveRequest.setDoctorId(null);
 
-        //restApi ile setleme işlemi yapılır.
+        // Map request to appointment entity
         Appointment saveAppointment = this.modelMapperService.forRequest().map(appointmentSaveRequest, Appointment.class);
         saveAppointment.setAnimal(animal);
         saveAppointment.setDoctor(doctor);
         saveAppointment.setDateTime(dateTime);
 
-        //Liste içerisine aldığımız değerlerden çakışan varsa bu hata mesajı fırlatır yoksa veritabanına kaydetme işlemi yapar.
+        // Check for conflicts and save appointment
         if (doctorList.isEmpty()){
             return ResultHelper.error("Doktor bu tarihte müsait değildir.");
         } else if (!appointmentByDate.isEmpty()) {
@@ -95,51 +88,75 @@ public class AppointmentManager implements IAppointmentService {
             return ResultHelper.created(this.modelMapperService.forResponse().map(this.appointmentRepo.save(saveAppointment), AppointmentResponse.class));
         }
     }
+
     @Override
     public Appointment get(int id) {
+        // Get appointment by ID or throw not found exception
         return this.appointmentRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
     }
+
     @Override
     public ResultData<CursorResponse<AppointmentResponse>> cursor(int page, int pageSize) {
+        // Create pageable request
         Pageable pageable = PageRequest.of(page, pageSize);
+        // Get paginated result of appointments
         Page<Appointment> appointmentPage =  this.appointmentRepo.findAll(pageable);
+        // Map appointments to response objects
         Page<AppointmentResponse> appointmentResponsePage = appointmentPage.map(appointment -> this.modelMapperService.forResponse().map(appointment, AppointmentResponse.class));
         return ResultHelper.cursor(appointmentResponsePage);
     }
+
     @Override
     public ResultData<AppointmentResponse> update(AppointmentUpdateRequest appointmentUpdateRequest) {
+        // Get appointment by ID to ensure it exists
         this.get(appointmentUpdateRequest.getId());
+        // Map update request to appointment entity and save updated appointment
         Appointment updateAppointment = this.modelMapperService.forRequest().map(appointmentUpdateRequest, Appointment.class);
         return ResultHelper.success(this.modelMapperService.forResponse().map(this.appointmentRepo.save(updateAppointment), AppointmentResponse.class));
     }
+
     @Override
     public boolean delete(int id) {
+        // Get appointment by ID to ensure it exists
         Appointment appointment = this.get(id);
+        // Delete the appointment
         this.appointmentRepo.delete(appointment);
         return true;
     }
+
     @Override
     public List<Appointment> findByDateTime(LocalDateTime localDateTime) {
+        // Find appointments by date and time
         return this.appointmentRepo.findByDateTime(localDateTime);
     }
+
     @Override
     public ResultData<List<AppointmentResponse>> findByDoctorIdAndDateTimeBetween(int id, LocalDate entryDate, LocalDate exitDate) {
+        // Convert dates to date-time
         LocalDateTime convertedEntryDate = entryDate.atStartOfDay();
         LocalDateTime convertedExitDate = exitDate.atStartOfDay().plusDays(1);
+        // Find appointments within the date range
         List<Appointment> appointmentList = this.appointmentRepo.findByDoctorIdAndDateTimeBetween(id, convertedEntryDate, convertedExitDate);
+        // Convert appointments to response objects
         List<AppointmentResponse> appointmentResponseList = this.convert.convertToResponseList(appointmentList, AppointmentResponse.class);
         return ResultHelper.success(appointmentResponseList);
     }
+
     @Override
     public ResultData<List<AppointmentResponse>> findByAnimalIdAndDateTimeBetween(int id, LocalDate entryDate, LocalDate exitDate) {
+        // Convert dates to date-time
         LocalDateTime convertedEntryDate = entryDate.atStartOfDay();
         LocalDateTime convertedExitDate = exitDate.atStartOfDay().plusDays(1);
+        // Find appointments within the date range
         List<Appointment> appointmentList = this.appointmentRepo.findByAnimalIdAndDateTimeBetween(id, convertedEntryDate, convertedExitDate);
+        // Convert appointments to response objects
         List<AppointmentResponse> appointmentResponseList = this.convert.convertToResponseList(appointmentList, AppointmentResponse.class);
         return ResultHelper.success(appointmentResponseList);
     }
+
     @Override
     public Optional<Appointment> findByValueForValid(LocalDateTime dateTime, Integer doctorId, Integer animalId) {
+        // Find appointment by date-time, doctor ID, and animal ID
         return this.appointmentRepo.findByDateTimeAndDoctorIdAndAnimalId(dateTime, doctorId, animalId);
     }
 }

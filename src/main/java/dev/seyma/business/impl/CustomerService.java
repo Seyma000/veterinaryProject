@@ -24,14 +24,17 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CustomerManager implements ICustomerService {
+public class CustomerService implements ICustomerService {
+    // Injected dependencies
     private final CustomerRepo customerRepo;
     private final IModelMapperService modelMapperService;
     private final ConvertEntityToResponse<Customer, CustomerResponse> convert;
 
     @Override
     public ResultData<CustomerResponse> save(CustomerSaveRequest customerSaveRequest) {
+        // Map request to customer entity
         Customer saveCustomer = this.modelMapperService.forRequest().map(customerSaveRequest, Customer.class);
+        // Check for existing customers with the same name, mail, and phone
         List<Customer> getByNamePhoneMail = this.findByNameAndMailAndPhone(
                 saveCustomer.getName(),
                 saveCustomer.getMail(),
@@ -39,43 +42,54 @@ public class CustomerManager implements ICustomerService {
         if (!getByNamePhoneMail.isEmpty()){
             throw new DataAlreadyExistException(Msg.getEntityForMsg(Customer.class));
         }
+        // Save the customer and return the response
         return ResultHelper.created(this.modelMapperService.forResponse().map(this.customerRepo.save(saveCustomer), CustomerResponse.class));
     }
 
     @Override
     public Customer get(int id) {
+        // Get customer by ID or throw not found exception
         return this.customerRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
     }
 
     @Override
     public ResultData<CursorResponse<CustomerResponse>> cursor(int page, int pageSize) {
+        // Create pageable request
         Pageable pageable = PageRequest.of(page, pageSize);
+        // Get paginated result of customers
         Page<Customer> customerPage = this.customerRepo.findAll(pageable);
+        // Map customers to response objects
         Page<CustomerResponse> customerResponsePage = customerPage.map(customer -> this.modelMapperService.forResponse().map(customer, CustomerResponse.class));
         return ResultHelper.cursor(customerResponsePage);
     }
 
     @Override
     public ResultData<CustomerResponse> update(CustomerUpdateRequest customerUpdateRequest) {
+        // Get customer by ID to ensure it exists
         this.get(customerUpdateRequest.getId());
+        // Map update request to customer entity and save updated customer
         Customer updateCustomer = this.modelMapperService.forRequest().map(customerUpdateRequest, Customer.class);
         return ResultHelper.success(this.modelMapperService.forResponse().map(this.customerRepo.save(updateCustomer), CustomerResponse.class));
     }
 
     @Override
     public ResultData<List<CustomerResponse>> findByName(String name) {
+        // Find customers by name
         List<Customer> customerList = this.customerRepo.findByName(name);
+        // Convert customers to response objects
         List<CustomerResponse> customerResponseList = this.convert.convertToResponseList(customerList, CustomerResponse.class);
         return ResultHelper.success(customerResponseList);
     }
 
     @Override
     public List<Customer> findByNameAndMailAndPhone(String name, String mail, String phone) {
+        // Find customers by name, mail, and phone
         return this.customerRepo.findByNameAndMailAndPhone(name, mail, phone);
     }
 
     @Override
     public boolean delete(int id) {
+        // Get customer by ID to ensure it exists and delete
         Customer customer = this.get(id);
         this.customerRepo.delete(customer);
         return true;

@@ -27,24 +27,27 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class VaccineManager implements IVaccineService {
-    private final VaccineRepo vaccineRepo;
-    private final IModelMapperService modelMapperService;
-    private final IAnimalService animalService;
-    private final ConvertEntityToResponse<Vaccine, VaccineResponse> convert;
+public class VaccineService implements IVaccineService {
+    private final VaccineRepo vaccineRepo; // Vaccine repository dependency
+    private final IModelMapperService modelMapperService; // Model mapper service dependency
+    private final IAnimalService animalService; // Animal service dependency
+    private final ConvertEntityToResponse<Vaccine, VaccineResponse> convert; // Entity to response converter
+
     @Override
     public ResultData<VaccineResponse> save(VaccineSaveRequest vaccineSaveRequest) {
-
+        // Check for existing vaccines with same code and name
         List<Vaccine> existVaccines = this.findByCodeAndName(vaccineSaveRequest.getCode(), vaccineSaveRequest.getName());
-        if (!existVaccines.isEmpty() && existVaccines.get(0).getProtectionFnshDate().isAfter(LocalDate.now())){
+        if (!existVaccines.isEmpty() && existVaccines.get(0).getProtectionFnshDate().isAfter(LocalDate.now())) {
             return ResultHelper.error("Aynı koda sahip aşının bitiş tarihi bitmemiş! ");
         }
-        if (!existVaccines.isEmpty()){
+        if (!existVaccines.isEmpty()) {
             throw new DataAlreadyExistException(Msg.getEntityForMsg(Vaccine.class));
         }
+        // Get the animal associated with the vaccine
         Animal animal = this.animalService.get(vaccineSaveRequest.getAnimalId());
         vaccineSaveRequest.setAnimalId(null);
 
+        // Map request to vaccine entity and save
         Vaccine saveVaccine = this.modelMapperService.forRequest().map(vaccineSaveRequest, Vaccine.class);
         saveVaccine.setAnimal(animal);
 
@@ -53,11 +56,13 @@ public class VaccineManager implements IVaccineService {
 
     @Override
     public Vaccine get(int id) {
+        // Get vaccine by ID, throw exception if not found
         return this.vaccineRepo.findById(id).orElseThrow(() -> new NotFoundException(Msg.NOT_FOUND));
     }
 
     @Override
     public ResultData<CursorResponse<VaccineResponse>> cursor(int page, int pageSize) {
+        // Get paginated list of vaccines
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Vaccine> vaccinePage = this.vaccineRepo.findAll(pageable);
         Page<VaccineResponse> vaccineResponsePage = vaccinePage.map(vaccine -> this.modelMapperService.forResponse().map(vaccine, VaccineResponse.class));
@@ -66,6 +71,7 @@ public class VaccineManager implements IVaccineService {
 
     @Override
     public ResultData<List<VaccineResponse>> findByAnimalId(int id) {
+        // Find vaccines by animal ID
         List<Vaccine> vaccineList = this.vaccineRepo.findByAnimalId(id);
         List<VaccineResponse> vaccineResponseList = this.convert.convertToResponseList(vaccineList, VaccineResponse.class);
         return ResultHelper.success(vaccineResponseList);
@@ -85,11 +91,13 @@ public class VaccineManager implements IVaccineService {
 
     @Override
     public List<Vaccine> findByCodeAndName(String code, String name) {
-        return this.vaccineRepo.findByCodeAndName(code,name);
+        // Find vaccines by code and name
+        return this.vaccineRepo.findByCodeAndName(code, name);
     }
 
     @Override
     public ResultData<VaccineResponse> update(VaccineUpdateRequest vaccineUpdateRequest) {
+        // Get existing vaccine, map update request and save
         Vaccine existingVaccine = this.get(vaccineUpdateRequest.getId());
         this.modelMapperService.forRequest().map(vaccineUpdateRequest, existingVaccine);
         Vaccine savedVaccine = this.vaccineRepo.save(existingVaccine);
@@ -98,11 +106,13 @@ public class VaccineManager implements IVaccineService {
 
     @Override
     public boolean delete(int id) {
+        // Delete vaccine by ID
         Vaccine vaccine = this.get(id);
         this.vaccineRepo.delete(vaccine);
         return true;
     }
-    public boolean isTrue(){
+
+    public boolean isTrue() {
         return true;
     }
 }
