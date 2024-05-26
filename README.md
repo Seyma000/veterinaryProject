@@ -8,7 +8,7 @@ Veterinary Management System is designed using N-layer architecture to streamlin
 ### Click Below and Watch 
            
 
-[![Veterinary Management System](src/images/VeterinaryProject.png)](http://www.youtube.com/seymaprojectvideo "Veterinary Management System")
+[![Veterinary Management System](src/images/VeterinaryProject.png)](https://youtu.be/50A1X9j6wQo "Veterinary Management System")
 
 ## Veterinary Management System UML Diagram
 
